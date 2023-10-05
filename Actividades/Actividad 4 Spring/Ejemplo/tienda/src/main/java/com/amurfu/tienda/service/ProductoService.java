@@ -28,6 +28,7 @@ public class ProductoService {
         productoNuevo.setDescripcion(productoDTO.getDescripcion());
         productoNuevo.setNombre(productoDTO.getNombre());
         productoNuevo.setPrecioUnitario(productoDTO.getPrecioUnitario());
+
         Categoria categoria = buscarCategoriaPorId(productoDTO.getIdCategoria());
         productoNuevo.setIdCategoria(categoria);
         productoRepository.save(productoNuevo);

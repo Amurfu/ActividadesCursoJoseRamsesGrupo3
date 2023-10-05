@@ -1,6 +1,7 @@
 package com.amurfu.tienda.service;
 
 import com.amurfu.tienda.data.*;
+
 import com.amurfu.tienda.data.dto.CompraDTO;
 import com.amurfu.tienda.data.dto.ProductoAddDTO;
 import com.amurfu.tienda.repository.*;
@@ -35,27 +36,55 @@ public class ComprasService {
 
 
     public CompraDTO generarCompra(CompraDTO compraDto){
-        Compra compraPrincipal = new Compra();
-        compraPrincipal.setFecha(new Date());
-        compraPrincipal.setCantidadProductos(compraDto.getProductos().size());
+        Compra compraHeader = new Compra();
+        compraHeader.setFecha(new Date());
+        compraHeader.setCantidadProductos(compraDto.getProductos().size());
+        //guardamos el usuario, primero vamos a la BD por el usuario y luego lo asignamos a la compra
         Usuario usuarioCompra = usuarioRepository.getReferenceById(compraDto.getIdUsuario());
-        compraPrincipal.setIdUsuario(usuarioCompra);
-        FormasPago formaPago = formaPagoRepository.getReferenceById(compraDto.getFormaPago());
-        compraPrincipal.setIdFormaPago(formaPago);
-        Double totalGeneral = 0.0;
-        for(ProductoAddDTO dtoProducto : compraDto.getProductos()){
-            ProductosCompra productoCarrito = new ProductosCompra();
-            Producto productoBd = productoRepository.getReferenceById(dtoProducto.getIdProducto());
-            dtoProducto.setPrecioUnitario(productoBd.getPrecioUnitario());
-            dtoProducto.setTotal(dtoProducto.getCantidad() * productoBd.getPrecioUnitario());
-            totalGeneral += dtoProducto.getTotal();
+        compraHeader.setIdUsuario(usuarioCompra);
+        //Buscamos la forma de pago y se la asignamos a la entidad de la compra
+        FormasPago formaPago = formaPagoRepository.getReferenceById(compraDto.getIdFormaPago());
+        compraHeader.setIdFormaPago(formaPago);
+        //Calculamos el total recorriendo cada producto, obteniendo su precio unitario y multiplicandolo por la cantidad
+        double totalCompra = 0.0;
+        for(ProductoAddDTO productoJson : compraDto.getProductos()){
+            //Por cada id encontrado en el json vamos a la BD por el objeto producto para hjacer los calculos
+            Producto productoBD = productoRepository.getReferenceById(productoJson.getIdProducto());
+            totalCompra += productoBD.getPrecioUnitario() * productoJson.getCantidad();
+            //Actualizamos la informacion en el json tambien, para mantener al usuario retroalimientado
+            productoJson.setPrecioUnitario(productoBD.getPrecioUnitario());
+            productoJson.setTotal(productoBD.getPrecioUnitario() * productoJson.getCantidad());
         }
-        compraDto.setTotal(totalGeneral);
-        compraDto.setCantidadProductos(compraPrincipal.getCantidadProductos());
-        compraDto.setFecha(compraPrincipal.getFecha());
-        compraPrincipal.setTotal(totalGeneral);
-        comprasRepository.save(compraPrincipal);
-        compraDto.setIdCompra(compraPrincipal.getId());
+        //asignamos el total a la compra que se guardara en la BD
+        compraHeader.setTotal(totalCompra);
+        //Guardamos la compra para despues guardar la tabla de productos_compra
+        comprasRepository.save(compraHeader);
+        //Una vez guardada la compra procedemos a guardar los productos en la tabla cruzada
+        for(ProductoAddDTO productoJson : compraDto.getProductos()){
+            //Traemos el producto de la bd
+            Producto productoBd = productoRepository.getReferenceById(productoJson.getIdProducto());
+            //Creamos la entidad que guardara en la BD
+            ProductosCompra productosCompra = new ProductosCompra();
+            //Guardamos el id compuesto cvreando una nueva entidad que representa ese ID compuesto
+            ProductosCompraId id = new ProductosCompraId();
+            id.setIdCompra(compraHeader.getIdcompra());
+            id.setIdProducto(productoBd.getId());
+            productosCompra.setId(id);
+            //guardamos la entidad producto y la entidad compra para que se relacione
+            productosCompra.setCompra(compraHeader);
+            productosCompra.setProducto(productoBd);
+            //Guardamos los datros calculados
+            productosCompra.setCantidad(productoJson.getCantidad());
+            productosCompra.setPrecioUnitario(productoJson.getPrecioUnitario());
+            productosCompra.setTotal(productoBd.getPrecioUnitario() * productoJson.getCantidad());
+            // Guardar la relación ProductosCompra en la base de datos
+            productosComprasRepository.save(productosCompra);
+        }
+        //Asignamos los valores al dtro para retroalimentar al usuario en al compra
+        compraDto.setIdCompra(compraHeader.getIdcompra());
+        compraDto.setTotal(compraHeader.getTotal());
+        compraDto.setCantidadProductos(compraHeader.getCantidadProductos());
+        compraDto.setFecha(compraHeader.getFecha());
         return  compraDto;
     }
 

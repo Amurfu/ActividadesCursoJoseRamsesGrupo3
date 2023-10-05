@@ -18,7 +18,7 @@ public class Compra {
     @Id
     @Column(name = "idcompra", nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Integer idcompra;
 
     @Column(name = "fecha", nullable = false)
     private Date fecha;
@@ -37,6 +37,6 @@ public class Compra {
     @JoinColumn(name = "id_forma_pago", nullable = false)
     private FormasPago idFormaPago;
 
-    @OneToMany(mappedBy = "compra")
+    @OneToMany(mappedBy = "compra", cascade = CascadeType.ALL)
     private List<ProductosCompra> productosCompra;
 }

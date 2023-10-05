@@ -14,14 +14,14 @@ public class ProductosCompra {
     private ProductosCompraId id;
 
     @MapsId("idCompra")
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "id_compra", nullable = false)
-    private Compra idCompra;
+    @ManyToOne
+    @JoinColumn(name = "id_compra")
+    private Compra compra;
 
     @MapsId("idProducto")
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "id_producto", nullable = false)
-    private Producto idProducto;
+    @ManyToOne
+    @JoinColumn(name = "id_producto")
+    private Producto producto;
 
     @Column(name = "cantidad", nullable = false)
     private Integer cantidad;

@@ -6,14 +6,16 @@ import lombok.Setter;
 import java.util.Date;
 import java.util.List;
 
-@Setter@Getter
+
+@Setter
+@Getter
 public class CompraDTO {
 
-    Integer idCompra;
-    Date fecha;
-    Integer cantidadProductos;
-    Double total;
-    Integer idUsuario;
-    Integer formaPago;
-    List<ProductoAddDTO> productos;
+    private int idCompra;
+    private int idUsuario;
+    private int idFormaPago;
+    private double total;
+    private int cantidadProductos;
+    private Date fecha;
+    private List<ProductoAddDTO> productos;
 }

@@ -13,12 +13,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/compras")
 public class ComprasController {
 
+
     @Autowired
     private ComprasService comprasService;
 
 
+
     @PostMapping("/guardar")
-    public CompraDTO guardarCompra(@RequestBody CompraDTO compra){
-        return comprasService.generarCompra(compra);
+    public CompraDTO guardarCompra(@RequestBody CompraDTO compraDTO){
+        return comprasService.generarCompra(compraDTO);
     }
 }

@@ -4,14 +4,15 @@ import com.amurfu.tienda.data.*;
 
 import com.amurfu.tienda.data.dto.CompraDTO;
 import com.amurfu.tienda.data.dto.ProductoAddDTO;
+import com.amurfu.tienda.exceptions.EntityNotFoundException;
 import com.amurfu.tienda.repository.*;
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.xml.crypto.Data;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ComprasService {
@@ -35,21 +36,39 @@ public class ComprasService {
 
 
 
-    public CompraDTO generarCompra(CompraDTO compraDto){
+    @Transactional
+    public CompraDTO generarCompra(@Valid CompraDTO compraDto){
+
+
         Compra compraHeader = new Compra();
         compraHeader.setFecha(new Date());
         compraHeader.setCantidadProductos(compraDto.getProductos().size());
         //guardamos el usuario, primero vamos a la BD por el usuario y luego lo asignamos a la compra
-        Usuario usuarioCompra = usuarioRepository.getReferenceById(compraDto.getIdUsuario());
+        Usuario usuarioCompra = usuarioRepository.findById(compraDto.getIdUsuario())
+                .orElseThrow(() -> new EntityNotFoundException("El usuario no existe."));
         compraHeader.setIdUsuario(usuarioCompra);
         //Buscamos la forma de pago y se la asignamos a la entidad de la compra
-        FormasPago formaPago = formaPagoRepository.getReferenceById(compraDto.getIdFormaPago());
-        compraHeader.setIdFormaPago(formaPago);
+
+        //FormasPago formasPago = formaPagoRepository.getReferenceById(compraDto.getIdFormaPago());
+        FormasPago formasPago = formaPagoRepository.findById(compraDto.getIdFormaPago())
+                .orElseThrow(() -> new EntityNotFoundException("La Forma de pago no existe."));
+
+        compraHeader.setIdFormaPago(formasPago);
         //Calculamos el total recorriendo cada producto, obteniendo su precio unitario y multiplicandolo por la cantidad
         double totalCompra = 0.0;
+
+        /*
+        validar la cantidad de productos existentes
+        throw new ProductosNoDisponiblesException("Algunos productos no están disponibles");
+        //validar si la forma de pago existe
+        FormasPago formasPago = formaPagoRepository.findById(compraDto.getIdFormaPago())
+                .orElseThrow(() -> new EntityNotFoundException("La entidad no se encuentra en la base de datos"));
+        */
+
         for(ProductoAddDTO productoJson : compraDto.getProductos()){
             //Por cada id encontrado en el json vamos a la BD por el objeto producto para hjacer los calculos
-            Producto productoBD = productoRepository.getReferenceById(productoJson.getIdProducto());
+            Producto productoBD = productoRepository.findById(productoJson.getIdProducto())
+                    .orElseThrow(() -> new EntityNotFoundException("El producto con id "+productoJson.getIdProducto()+" No existe."));
             totalCompra += productoBD.getPrecioUnitario() * productoJson.getCantidad();
             //Actualizamos la informacion en el json tambien, para mantener al usuario retroalimientado
             productoJson.setPrecioUnitario(productoBD.getPrecioUnitario());
@@ -62,7 +81,8 @@ public class ComprasService {
         //Una vez guardada la compra procedemos a guardar los productos en la tabla cruzada
         for(ProductoAddDTO productoJson : compraDto.getProductos()){
             //Traemos el producto de la bd
-            Producto productoBd = productoRepository.getReferenceById(productoJson.getIdProducto());
+            Producto productoBd = productoRepository.findById(productoJson.getIdProducto())
+                    .orElseThrow(() -> new EntityNotFoundException("El producto con id "+productoJson.getIdProducto()+" No existe."));
             //Creamos la entidad que guardara en la BD
             ProductosCompra productosCompra = new ProductosCompra();
             //Guardamos el id compuesto cvreando una nueva entidad que representa ese ID compuesto

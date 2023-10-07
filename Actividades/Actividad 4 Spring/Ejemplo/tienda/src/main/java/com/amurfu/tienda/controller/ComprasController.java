@@ -2,15 +2,20 @@ package com.amurfu.tienda.controller;
 
 
 import com.amurfu.tienda.data.dto.CompraDTO;
+import com.amurfu.tienda.exceptions.ErrorResponse;
+import com.amurfu.tienda.exceptions.ProductosNoDisponiblesException;
 import com.amurfu.tienda.service.ComprasService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/compras")
+@Validated
 public class ComprasController {
 
 
@@ -20,7 +25,9 @@ public class ComprasController {
 
 
     @PostMapping("/guardar")
-    public CompraDTO guardarCompra(@RequestBody CompraDTO compraDTO){
+    public CompraDTO guardarCompra(@Valid @RequestBody CompraDTO compraDTO){
         return comprasService.generarCompra(compraDTO);
     }
+
+
 }

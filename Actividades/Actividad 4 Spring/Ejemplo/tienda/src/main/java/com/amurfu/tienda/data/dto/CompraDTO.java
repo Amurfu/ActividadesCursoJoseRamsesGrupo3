@@ -18,7 +18,7 @@ public class CompraDTO {
 
     private int idCompra;
     @NotNull(message = "Debe ingresar un usuario")
-    @Positive(message = "Debe ingresar un usuario")
+    @Positive(message = "Debe ingresar un usuario valido")
     private int idUsuario;
     @NotNull(message = "Debe ingresar una forma de pago")
     @Positive(message = "Debe ingresar una forma de pago valida")

@@ -3,6 +3,7 @@ package com.amurfu.tienda.controller;
 
 import com.amurfu.tienda.data.dto.CompraDTO;
 import com.amurfu.tienda.exceptions.ErrorResponse;
+import com.amurfu.tienda.exceptions.ProductosNoDisponiblesException;
 import com.amurfu.tienda.service.ComprasService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,12 +29,5 @@ public class ComprasController {
         return comprasService.generarCompra(compraDTO);
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ResponseBody
-    public ErrorResponse handleValidationException(MethodArgumentNotValidException ex) {
-        FieldError fieldError = ex.getBindingResult().getFieldError();
-        String errorMessage = fieldError.getDefaultMessage();
-        return new ErrorResponse(errorMessage);
-    }
+
 }

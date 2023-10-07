@@ -4,16 +4,15 @@ import com.amurfu.tienda.data.*;
 
 import com.amurfu.tienda.data.dto.CompraDTO;
 import com.amurfu.tienda.data.dto.ProductoAddDTO;
+import com.amurfu.tienda.exceptions.EntityNotFoundException;
 import com.amurfu.tienda.repository.*;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.xml.crypto.Data;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ComprasService {
@@ -39,6 +38,8 @@ public class ComprasService {
 
     @Transactional
     public CompraDTO generarCompra(@Valid CompraDTO compraDto){
+
+
         Compra compraHeader = new Compra();
         compraHeader.setFecha(new Date());
         compraHeader.setCantidadProductos(compraDto.getProductos().size());
@@ -46,10 +47,20 @@ public class ComprasService {
         Usuario usuarioCompra = usuarioRepository.getReferenceById(compraDto.getIdUsuario());
         compraHeader.setIdUsuario(usuarioCompra);
         //Buscamos la forma de pago y se la asignamos a la entidad de la compra
-        FormasPago formaPago = formaPagoRepository.getReferenceById(compraDto.getIdFormaPago());
-        compraHeader.setIdFormaPago(formaPago);
+
+        FormasPago formasPago = formaPagoRepository.getReferenceById(compraDto.getIdFormaPago());
+        compraHeader.setIdFormaPago(formasPago);
         //Calculamos el total recorriendo cada producto, obteniendo su precio unitario y multiplicandolo por la cantidad
         double totalCompra = 0.0;
+
+        /*
+        validar la cantidad de productos existentes
+        throw new ProductosNoDisponiblesException("Algunos productos no están disponibles");
+        //validar si la forma de pago existe
+        FormasPago formasPago = formaPagoRepository.findById(compraDto.getIdFormaPago())
+                .orElseThrow(() -> new EntityNotFoundException("La entidad no se encuentra en la base de datos"));
+        */
+
         for(ProductoAddDTO productoJson : compraDto.getProductos()){
             //Por cada id encontrado en el json vamos a la BD por el objeto producto para hjacer los calculos
             Producto productoBD = productoRepository.getReferenceById(productoJson.getIdProducto());

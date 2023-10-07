@@ -5,6 +5,8 @@ import com.amurfu.tienda.data.*;
 import com.amurfu.tienda.data.dto.CompraDTO;
 import com.amurfu.tienda.data.dto.ProductoAddDTO;
 import com.amurfu.tienda.repository.*;
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +37,8 @@ public class ComprasService {
 
 
 
-    public CompraDTO generarCompra(CompraDTO compraDto){
+    @Transactional
+    public CompraDTO generarCompra(@Valid CompraDTO compraDto){
         Compra compraHeader = new Compra();
         compraHeader.setFecha(new Date());
         compraHeader.setCantidadProductos(compraDto.getProductos().size());

@@ -4,8 +4,10 @@ import com.amurfu.tienda.data.*;
 
 import com.amurfu.tienda.data.dto.CompraDTO;
 import com.amurfu.tienda.data.dto.ProductoAddDTO;
+import com.amurfu.tienda.data.dto.RespuestGenerica;
 import com.amurfu.tienda.exceptions.EntityNotFoundException;
 import com.amurfu.tienda.repository.*;
+import com.amurfu.tienda.utils.Constantes;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,21 +39,21 @@ public class ComprasService {
 
 
     @Transactional
-    public CompraDTO generarCompra(@Valid CompraDTO compraDto){
-
+    public RespuestGenerica generarCompra(@Valid CompraDTO compraDto){
+        RespuestGenerica respuesta = new RespuestGenerica();
 
         Compra compraHeader = new Compra();
         compraHeader.setFecha(new Date());
         compraHeader.setCantidadProductos(compraDto.getProductos().size());
         //guardamos el usuario, primero vamos a la BD por el usuario y luego lo asignamos a la compra
         Usuario usuarioCompra = usuarioRepository.findById(compraDto.getIdUsuario())
-                .orElseThrow(() -> new EntityNotFoundException("El usuario no existe."));
+                .orElseThrow(() -> new EntityNotFoundException(Constantes.USUARIO_NO_EXISTENTE));
         compraHeader.setIdUsuario(usuarioCompra);
         //Buscamos la forma de pago y se la asignamos a la entidad de la compra
 
         //FormasPago formasPago = formaPagoRepository.getReferenceById(compraDto.getIdFormaPago());
         FormasPago formasPago = formaPagoRepository.findById(compraDto.getIdFormaPago())
-                .orElseThrow(() -> new EntityNotFoundException("La Forma de pago no existe."));
+                .orElseThrow(() -> new EntityNotFoundException(Constantes.FORMA_PAGO_NO_EXISTENTE));
 
         compraHeader.setIdFormaPago(formasPago);
         //Calculamos el total recorriendo cada producto, obteniendo su precio unitario y multiplicandolo por la cantidad
@@ -105,7 +107,11 @@ public class ComprasService {
         compraDto.setTotal(compraHeader.getTotal());
         compraDto.setCantidadProductos(compraHeader.getCantidadProductos());
         compraDto.setFecha(compraHeader.getFecha());
-        return  compraDto;
+
+        respuesta.setExito(true);
+        respuesta.setMensaje(Constantes.MENSAJE_EXITO_COMPRA);
+        respuesta.getDatos().add(compraDto);
+        return  respuesta;
     }
 
 }

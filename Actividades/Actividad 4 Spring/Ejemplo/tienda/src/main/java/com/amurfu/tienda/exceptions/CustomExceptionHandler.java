@@ -45,4 +45,16 @@ public class CustomExceptionHandler {
         respuesta.setMensaje(ex.getMessage());
         return new ResponseEntity<>(respuesta,status);
     }
+
+    @ExceptionHandler(ProductoSinStockException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseBody
+    public ResponseEntity<RespuestGenerica> handleSinStock(ProductoSinStockException ex) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        RespuestGenerica respuesta = new RespuestGenerica();
+        respuesta.setExito(false);
+        respuesta.setCodigo(status.value());
+        respuesta.setMensaje(ex.getMessage());
+        return new ResponseEntity<>(respuesta,status);
+    }
 }

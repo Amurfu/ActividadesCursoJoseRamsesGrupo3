@@ -6,6 +6,8 @@ import com.amurfu.tienda.data.dto.CompraDTO;
 import com.amurfu.tienda.data.dto.ProductoAddDTO;
 import com.amurfu.tienda.data.dto.RespuestGenerica;
 import com.amurfu.tienda.exceptions.EntityNotFoundException;
+import com.amurfu.tienda.exceptions.ProductoSinStockException;
+import com.amurfu.tienda.exceptions.ProductosNoDisponiblesException;
 import com.amurfu.tienda.repository.*;
 import com.amurfu.tienda.utils.Constantes;
 import jakarta.transaction.Transactional;
@@ -73,6 +75,10 @@ public class ComprasService {
                     .orElseThrow(() -> new EntityNotFoundException("El producto con id "+productoJson.getIdProducto()+" No existe."));
             totalCompra += productoBD.getPrecioUnitario() * productoJson.getCantidad();
             //Actualizamos la informacion en el json tambien, para mantener al usuario retroalimientado
+            //validar si mi cantidad actual cumple con la que piden
+            if(productoBD.getCantidadActual() < productoJson.getCantidad()){
+                throw  new ProductoSinStockException(Constantes.MENSAJE_STOCK_NO_DISPONIBLE+" "+productoBD.getId());
+            }
             productoJson.setPrecioUnitario(productoBD.getPrecioUnitario());
             productoJson.setTotal(productoBD.getPrecioUnitario() * productoJson.getCantidad());
         }
@@ -80,6 +86,15 @@ public class ComprasService {
         compraHeader.setTotal(totalCompra);
         //Guardamos la compra para despues guardar la tabla de productos_compra
         comprasRepository.save(compraHeader);
+        //Si la compra se guarda, descontamos la cantidad del stock
+        for(ProductoAddDTO productoJson : compraDto.getProductos()){
+        //Actualizamos el stock
+            Producto productoBD = productoRepository.findById(productoJson.getIdProducto())
+                    .orElseThrow(() -> new EntityNotFoundException("El producto con id "+productoJson.getIdProducto()+" No existe."));
+            productoBD.setCantidadActual(productoBD.getCantidadActual() - productoJson.getCantidad());
+            productoRepository.save(productoBD);
+        }
+
         //Una vez guardada la compra procedemos a guardar los productos en la tabla cruzada
         for(ProductoAddDTO productoJson : compraDto.getProductos()){
             //Traemos el producto de la bd

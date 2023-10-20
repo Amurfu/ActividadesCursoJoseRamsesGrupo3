@@ -8,10 +8,11 @@ import org.springframework.http.HttpStatus;
 @Getter
 @Setter
 public class ErrorResponse {
-    private String mensaje;
-    private int codigo;
-    private String estatus;
 
+    private int codigo;
+    private String mensaje;
+    private String estatus;
+    private boolean exito;
 
     public ErrorResponse(String mensaje) {
         this.mensaje = mensaje;

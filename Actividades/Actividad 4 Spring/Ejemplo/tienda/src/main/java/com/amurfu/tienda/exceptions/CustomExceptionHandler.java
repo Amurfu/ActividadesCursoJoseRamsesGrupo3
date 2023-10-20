@@ -1,5 +1,6 @@
 package com.amurfu.tienda.exceptions;
 
+import com.amurfu.tienda.data.dto.RespuestGenerica;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -36,8 +37,12 @@ public class CustomExceptionHandler {
     @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ResponseBody
-    public ResponseEntity<ErrorResponse> handleEntityNotFoundException(EntityNotFoundException ex) {
+    public ResponseEntity<RespuestGenerica> handleEntityNotFoundException(EntityNotFoundException ex) {
         HttpStatus status = HttpStatus.NOT_FOUND;
-        return new ResponseEntity<>(new ErrorResponse(status, ex.getMessage()),status);
+        RespuestGenerica respuesta = new RespuestGenerica();
+        respuesta.setExito(false);
+        respuesta.setCodigo(status.value());
+        respuesta.setMensaje(ex.getMessage());
+        return new ResponseEntity<>(respuesta,status);
     }
 }

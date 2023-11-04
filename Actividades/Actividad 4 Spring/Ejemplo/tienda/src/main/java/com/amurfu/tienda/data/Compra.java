@@ -5,7 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.util.Date;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -15,10 +17,11 @@ import java.util.Set;
 public class Compra {
     @Id
     @Column(name = "idcompra", nullable = false)
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer idcompra;
 
     @Column(name = "fecha", nullable = false)
-    private Instant fecha;
+    private Date fecha;
 
     @Column(name = "cantidad_productos", nullable = false)
     private Integer cantidadProductos;
@@ -34,8 +37,6 @@ public class Compra {
     @JoinColumn(name = "id_forma_pago", nullable = false)
     private FormasPago idFormaPago;
 
-    @ManyToMany
-    @JoinTable(joinColumns = @JoinColumn(name = "idcompra"),
-            inverseJoinColumns = @JoinColumn(name = "idproducto"))
-    private Set<Producto> productos = new LinkedHashSet<>();
+    @OneToMany(mappedBy = "compra", cascade = CascadeType.ALL)
+    private List<ProductosCompra> productosCompra;
 }

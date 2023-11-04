@@ -14,10 +14,8 @@ import java.util.Objects;
 @Embeddable
 public class ProductosCompraId implements Serializable {
     private static final long serialVersionUID = 7920772106078036867L;
-    @Column(name = "id_compra", nullable = false)
-    private Integer idCompra;
 
-    @Column(name = "id_producto", nullable = false)
+    private Integer idCompra;
     private Integer idProducto;
 
     @Override

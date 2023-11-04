@@ -37,7 +37,7 @@ public class RespuestaGenericaTest {
         listaObjetos.add("Esto es un objeto mensaje");
         respuesta.setDatos(Arrays.asList(listaObjetos.toArray()));
         assertNotNull(respuesta.getDatos());
-        assertTrue(respuesta.getDatos().isEmpty());
+        assertFalse(respuesta.getDatos().isEmpty());
     }
 
     @Test

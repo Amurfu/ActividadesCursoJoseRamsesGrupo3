@@ -61,14 +61,6 @@ public class ComprasService {
         //Calculamos el total recorriendo cada producto, obteniendo su precio unitario y multiplicandolo por la cantidad
         double totalCompra = 0.0;
 
-        /*
-        validar la cantidad de productos existentes
-        throw new ProductosNoDisponiblesException("Algunos productos no están disponibles");
-        //validar si la forma de pago existe
-        FormasPago formasPago = formaPagoRepository.findById(compraDto.getIdFormaPago())
-                .orElseThrow(() -> new EntityNotFoundException("La entidad no se encuentra en la base de datos"));
-        */
-
         for(ProductoAddDTO productoJson : compraDto.getProductos()){
             //Por cada id encontrado en el json vamos a la BD por el objeto producto para hjacer los calculos
             Producto productoBD = productoRepository.findById(productoJson.getIdProducto())

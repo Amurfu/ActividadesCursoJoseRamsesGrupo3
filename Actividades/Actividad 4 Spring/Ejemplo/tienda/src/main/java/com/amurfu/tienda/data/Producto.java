@@ -11,12 +11,13 @@ import lombok.Setter;
 public class Producto {
     @Id
     @Column(name = "idproducto", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "nombre", nullable = false, length = 45)
+    @Column(name = "nombre", nullable = true, length = 45)
     private String nombre;
 
-    @Column(name = "descripcion", nullable = false, length = 45)
+    @Column(name = "descripcion", nullable = true, length = 45)
     private String descripcion;
 
     @Column(name = "cantidad_actual")

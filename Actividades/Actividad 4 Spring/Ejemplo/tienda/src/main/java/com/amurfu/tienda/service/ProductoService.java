@@ -3,8 +3,10 @@ package com.amurfu.tienda.service;
 import com.amurfu.tienda.data.Categoria;
 import com.amurfu.tienda.data.Producto;
 import com.amurfu.tienda.data.dto.ProductoDTO;
+import com.amurfu.tienda.data.dto.RespuestGenerica;
 import com.amurfu.tienda.repository.CategoriaRepository;
 import com.amurfu.tienda.repository.ProductoRepository;
+import com.amurfu.tienda.utils.Constantes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +25,8 @@ public class ProductoService {
 
 
 
-    public ProductoDTO guardarProducto(ProductoDTO productoDTO){
+    public RespuestGenerica guardarProducto(ProductoDTO productoDTO){
+        RespuestGenerica respuesta = new RespuestGenerica();
         Producto productoNuevo = new Producto();
         productoNuevo.setDescripcion(productoDTO.getDescripcion());
         productoNuevo.setNombre(productoDTO.getNombre());
@@ -33,7 +36,10 @@ public class ProductoService {
         productoNuevo.setIdCategoria(categoria);
         productoRepository.save(productoNuevo);
         productoDTO.setId(productoNuevo.getId());
-        return productoDTO;
+        respuesta.setExito(true);
+        respuesta.getDatos().add(productoDTO);
+        respuesta.setMensaje(Constantes.MENSAJE_REGISTRO_PRODUCTO+productoDTO.getId());
+        return respuesta;
     }
 
     private Categoria buscarCategoriaPorId(int idCategoria) {

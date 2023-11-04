@@ -21,4 +21,14 @@ public class ProductoAddDTO {
     private int cantidad;
     private double precioUnitario;
     private double total;
+
+    public  ProductoAddDTO(){
+
+    }
+
+    public ProductoAddDTO(int idProducto, int cantidad){
+        super();
+        this.idProducto = idProducto;
+        this.cantidad = cantidad;
+    }
 }

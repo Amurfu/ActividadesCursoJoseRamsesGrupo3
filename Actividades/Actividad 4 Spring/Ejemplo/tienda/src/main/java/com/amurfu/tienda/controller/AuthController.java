@@ -2,7 +2,10 @@ package com.amurfu.tienda.controller;
 
 
 import com.amurfu.tienda.data.dto.CredencialesDto;
+import com.amurfu.tienda.data.dto.RespuestGenerica;
+import com.amurfu.tienda.service.AutenticacionService;
 import com.amurfu.tienda.service.JwtService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -29,6 +32,12 @@ public class AuthController {
     @Autowired
     private final JwtService jwtService;
 
+    @Autowired
+    private UsuariosController usuariosController;
+
+    @Autowired
+    private AutenticacionService autenticacionService;
+
     // Constructor para inyectar JwtService.
     public AuthController(JwtService jwtService) {
         this.jwtService = jwtService;
@@ -36,23 +45,16 @@ public class AuthController {
 
     // Método para manejar las solicitudes POST a "/auth/login".
     @PostMapping("/auth/login")
-    public ResponseEntity<Map<String, String>> authenticate(@RequestBody CredencialesDto credentials) {
-
-        // Comprueba si las credenciales proporcionadas coinciden con las configuradas.
-        if (configuredUsername.equals(credentials.getUsuario()) &&
-                configuredPassword.equals(credentials.getContraseña())) {
-            // Genera un token JWT si las credenciales son correctas.
-            String token = jwtService.generateToken(credentials.getUsuario());
-
-            // Crea un mapa para la respuesta con el token JWT.
-            Map<String, String> response = new HashMap<>();
-            response.put("access_token", token);
-
-            // Devuelve la respuesta con el token y estado HTTP 200 (OK).
-            return ResponseEntity.ok(response);
-        }
-
-        // Devuelve una respuesta con estado HTTP 400 (Bad Request) si las credenciales no son correctas.
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    public ResponseEntity<RespuestGenerica> authenticate(@Valid @RequestBody CredencialesDto credentials) {
+            RespuestGenerica respuesta = autenticacionService.getTokenUsuario(credentials);
+            HttpStatus status = null;
+            if(respuesta.isExito()){
+                status =  HttpStatus.OK;
+                respuesta.setCodigo(status.value());
+            }else{
+                status = HttpStatus.BAD_REQUEST;
+                respuesta.setCodigo(status.value());
+            }
+            return new ResponseEntity<>(respuesta,status);
     }
 }

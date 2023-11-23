@@ -28,5 +28,8 @@ public class Usuario {
     @Column(name = "correo", nullable = false, length = 45)
     private String correo;
 
+    @Column(name = "contrasena",nullable = false,length = 100)
+    private String contrasena;
+
 
 }

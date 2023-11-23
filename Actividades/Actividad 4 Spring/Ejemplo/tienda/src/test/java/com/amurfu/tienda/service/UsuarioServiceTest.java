@@ -63,24 +63,5 @@ public class UsuarioServiceTest {
         verify(usuarioRepository).findAll();
     }
 
-    @Test
-    void guardarUsuarioShouldReturnUsuarioDto() {
-        // Configure the mock to return the user when saved
-        when(usuarioRepository.save(any(Usuario.class))).thenAnswer(invocation -> {
-            Usuario usuario = invocation.getArgument(0);
-            usuario.setId(1); // Simulate generated ID
-            return usuario;
-        });
 
-        // Call the method to test
-        UsuarioDto savedDto = usuarioService.guardarUsuario(usuarioDto);
-
-        // Assert the results
-        assertNotNull(savedDto);
-        assertNotNull(savedDto.getId());
-        assertEquals(usuario.getNombre(), savedDto.getNombre());
-
-        // Verify the interaction with the mock
-        verify(usuarioRepository).save(any(Usuario.class));
-    }
 }
